@@ -1,7 +1,8 @@
-import { TinaMarkdown } from "tinacms/dist/rich-text";
 import { Layout } from "../components/Layout";
-import { tinaField, useTina } from "tinacms/dist/react";
+import { useTina } from "tinacms/dist/react";
 import { client } from "../tina/__generated__/client";
+import { TinaMarkdown } from "tinacms/dist/rich-text";
+
 
 export default function Home(props) {
   // data passes though in production mode and data is updated to the sidebar data in edit-mode
@@ -10,22 +11,39 @@ export default function Home(props) {
     variables: props.variables,
     data: props.data,
   });
-
-  const content = data.page.body;
+  const { title, description, heroImg,date } = data.post;
+  console.log(title, description, heroImg,date);
   return (
     <Layout>
-      <div data-tina-field={tinaField(data.page, "body")}>
-        <TinaMarkdown content={content} />
-      </div>
+      <code>
+        <pre
+          style={{
+            backgroundColor: "lightgray",
+          }}
+        >
+          {JSON.stringify(data.post, null, 2)}
+          <TinaMarkdown  content={data.post._body} />
+        </pre>
+      </code>
     </Layout>
   );
 }
 
-// This is an example of a page generated with Serverside Rendering.
-// This can be switched to a static page by using getStaticProps
-export const getServerSideProps = async ({ params }) => {
-  const { data, query, variables } = await client.queries.page({
-    relativePath: `${params.slug}.mdx`,
+export const getStaticPaths = async () => {
+  const { data } = await client.queries.postConnection();
+  const paths = data.postConnection.edges.map((x) => {
+    return { params: { slug: x.node._sys.filename } };
+  });
+
+  return {
+    paths,
+    fallback: "blocking",
+  };
+};
+
+export const getStaticProps = async (ctx) => {
+  const { data, query, variables } = await client.queries.post({
+    relativePath: ctx.params.slug + ".md",
   });
 
   return {
