@@ -5,6 +5,8 @@ heroImg: /uploads/tina.jpeg
 excerpt: ''
 author: content/authors/admin.md
 date: 2023-10-04T18:30:00.000Z
+tags:
+  - hi
 ---
 
 # How to learn javascript?
